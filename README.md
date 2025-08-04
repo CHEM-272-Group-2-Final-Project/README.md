@@ -4,11 +4,11 @@ CHEM272 Project 2
 👷 Package Structure
 
 * SimulateParticles.py
-  - PlotLocations()         # plot routine
+  - PlotLocations()         # currnet locations
   - Potential()             # Lennard-Jones potential
-  - DistToPotential()       # distance + potential
-  - MoveParticle()          # Metropolis step
-  - class SimulateParticles:
+  - DistToPotential()       # convert to distance potential
+  - MoveParticle()          # calculate if a particle is allowed to move
+  - class SimulateParticles: # runs the simulate
     - __init__()        # setup particles
-    - run()             # loop & simulate
+    - run()             # simulate
    

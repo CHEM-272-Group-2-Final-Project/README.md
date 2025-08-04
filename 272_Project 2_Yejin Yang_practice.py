@@ -74,7 +74,7 @@ def MoveParticle(Xinit, Yinit, N = 100, Niter = 1000, a = 1, b = 1, T = 1, delta
             Utot[i] = U_new
             
         #Plotting
-        if n in [0, 2500, 5600]:
+        if not n%100:
             plt.scatter(Xinit, Yinit, c='gray', alpha=0.5)
             plt.xlabel('x')
             plt.ylabel('y')

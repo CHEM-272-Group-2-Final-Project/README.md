@@ -3,7 +3,7 @@ CHEM272 Project 2
 
 👷 Package Structure
 
-* SimulateParticles.py
+* 272_Project 2.py
   - PlotLocations()         # currnet locations
   - Potential()             # Lennard-Jones potential
   - DistToPotential()       # convert to distance potential

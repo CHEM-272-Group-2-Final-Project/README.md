@@ -9,7 +9,7 @@ Refer to 272_03 Problem set
 import numpy as np
 import matplotlib.pyplot as plt
 
-#1. currnet locations
+#1. current locations
 def PlotLocation(R = 50, N = 100):
     Xinit = np.random.uniform(-R, R, (N,1))
     Yinit = np.random.uniform(-R, R, (N,1))

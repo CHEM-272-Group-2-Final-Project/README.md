@@ -74,7 +74,7 @@ def MoveParticle(Xinit, Yinit, N = 100, Niter = 1000, a = 1, b = 1, T = 1, delta
             Utot[i] = U_new
             
         #Plotting
-        if not n%100:
+        if n in [0, 2500, 5600]:
             plt.scatter(Xinit, Yinit, c='gray', alpha=0.5)
             plt.xlabel('x')
             plt.ylabel('y')
@@ -95,5 +95,5 @@ class SimulateParticles:
         
         
 sim = SimulateParticles(N=200)
-sim.run(Niter=1000, T = 1)
-sim.run(Niter=1000, T = 10)
+sim.run(Niter=6000, T = 1)
+#sim.run(Niter=1000, T = 10)

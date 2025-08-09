@@ -1,118 +1,77 @@
-"""
-
-272_Project 2
-Yejin Yang
-MOVE ALL PARTICLES AT A TIME
-
-"""
-
 import numpy as np
 import matplotlib.pyplot as plt
+#different particle size different #R not r2
 
-#1. currnet locations
-def PlotLocation(R = 50, N = 100):
-    Xinit = np.random.uniform(-R, R, (N,))
-    Yinit = np.random.uniform(-R, R, (N,))
+def PlotLocation(L=10, N=100):
+    Xinit = np.random.uniform(0, L, (N,))
+    Yinit = np.random.uniform(0, L, (N,))
     return Xinit, Yinit
 
-#2.define potential
-def Potential(Dx, Dy, a = 1, b = 1, N = 100): 
-    r = np.sqrt(Dx**2 + Dy**2)
-    
-    #to avoid error from division by zero
-    eps = 1e-10
+def Potential(Dx, Dy, a=1, b=1, N=100):
+    rsquared = Dx**2 + Dy**2
     Eye = np.eye(N)
-    r = r + Eye * (1/eps)
-    
-    Phi = a/r**12 - b/r**6
-    np.fill_diagonal(Phi,0)
-    return Phi
+    rsquared = rsquared + Eye  # avoiding division by zero
+    r = np.sqrt(rsquared)
+    phi = a / r**12 - b / r**6
+    phi = phi * (1 - Eye)  # zeroing out diagonal
+    return phi
 
 
-#3.call Potential, calculates the distances and the total potential
-def DisToPotential(Xinit, Yinit, a, b, N, Eye, Ones):
-    Xi_tile = np.tile(Xinit, (1,N)) #Xinit from PlotLocation
-    Yi_tile  = np.tile(Yinit, (1,N))
-    
-    Dx = Xi_tile - Xi_tile.T
-    Dy = Yi_tile - Yi_tile.T
-    
+def DisToPotential(X, Y, a, b, N, Eye, Ones):
+    Xmatrix = np.tile(X, (N, 1))
+    Ymatrix = np.tile(Y, (N, 1))
+    Dx = Xmatrix - Xmatrix.T
+    Dy = Ymatrix - Ymatrix.T
     Phi = Potential(Dx, Dy, a, b, N)
     Utot = np.dot(Phi, Ones)
     return Utot
 
-
-#4. calculate if a particle is allowed to move
-def MoveParticle(Xinit, Yinit, N = 100, Niter = 1000, a = 1, b = 1, T = 10, delta = 0.1):
-    
-    N = len(Xinit)
+def MoveParticle(X, Y, Utot, a=1, b=1, T=1, delta=0.01):
+    N = len(X)
     Eye = np.eye(N)
-    Ones = np.ones((N,))
-    
-    Utot = DisToPotential(Xinit, Yinit, a, b, N, Eye, Ones)
-    #then it generates Utot?
+    Ones = np.ones(N)
 
-    #check step size adjustment constant "delta"
-    #r0 = (a / b)**(1/6) 
-    #delta = 0.1 #when r closes to r0*0.1, aggregatioin starts?
-    #print("compare 0.1*r0 to delta: ", 0.1*r0, delta)
-    
-    for n in range(Niter):
-        dx = delta * np.random.choice([-1, 1],(N,1)) #delta is to adjust step size
-        dy = delta * np.random.choice([-1, 1],(N,1))
-        #print("dx, dy", dx, dy)
-        Xtri = np.copy(Xinit)
-        Ytri = np.copy(Yinit)
-        
-        Xtri += dx
-        Ytri += dy
-        #print("Xtri Ytri: ", Xtri, Ytri)
-        
-        Uold = DisToPotential(Xinit, Yinit, a, b, N, Eye, Ones) #old
-        Utri = DisToPotential(Xtri, Ytri, a, b, N, Eye, Ones) #new
-        dU = Utri - Uold
-        
-        rho = np.random.uniform(0,1) #rho should be differnet for each particle for strictly speaking, for detailed balance
-        accept = (dU < 0) | (rho < np.exp(-dU / T))
-        move_indices = np.flatnonzero(accept)
-        
-        for i in move_indices:
-            Xinit[i] = Xtri[i]
-            Yinit[i] = Ytri[i]
-            Utot[i] = Utri[i]
-            
-        #Plotting
-        if not n%500:
-            plt.scatter(Xinit, Yinit, c='gray', alpha=0.5, s=30)
-            plt.xlabel('x')
-            plt.ylabel('y')
-            plt.title(f'after {n} iterations\na = {a}, b = {b}, T = {T}, N = {N}')
-            #plt.savefig(f'after {n} iterations, a = {a}, b = {b}, T = {T}, N = {N}.png')
-            plt.show()
+    dx = delta * np.random.choice([-1, 1], N)
+    dy = delta * np.random.choice([-1, 1], N)
 
-#5. runs the simulate
+    Xmove = X + dx
+    Ymove = Y + dy
+
+    Unew = DisToPotential(Xmove, Ymove, a, b, N, Eye, Ones)
+
+    for i in range(N):
+        change = Unew[i] - Utot[i]
+        rho = np.random.rand()
+
+        if change < 0 or rho < np.exp(-change / T):
+            X[i] = Xmove[i]
+            Y[i] = Ymove[i]
+            Utot[i] = Unew[i]
+
+    return X, Y, Utot
+
+
 class SimulateParticles:
-    def __init__(self, N=100, R=50, a=1, b=1, T=10, delta=1):
+    def __init__(self, N=100, L=100):
         self.N = N
-        self.R = R
-        self.a = a
-        self.b = b
-        self.T = T
-        self.delta = delta
-        self.Xinit, self.Yinit = PlotLocation(R, N)
+        self.L = L
+        self.X, self.Y = PlotLocation(L, N)
+        self.Eye = np.eye(N)
+        self.Ones = np.ones(N)
+        self.sizes = np.random.uniform(10, 50, self.N)
 
-    def run(self, Niter=1000):
-        MoveParticle(self.Xinit, self.Yinit, self.N, Niter, self.a, self.b, self.T, self.delta)
-        
-        
-sim = SimulateParticles(N=500,a = 1, b = 1)
-#sim = SimulateParticles(N=500,a = 1, b = 20)#greater attraction
-#sim = SimulateParticles(N=500,a = 20, b = 1)#greater repulsion X
+    def run(self, Niter=1000, a=1, b=1, T=1, delta=0.01):
+        Utot = DisToPotential(self.X, self.Y, a, b, self.N, self.Eye, self.Ones)
 
-#sim = SimulateParticles(N=500,T = 1000)#higher temperature X
-#sim = SimulateParticles(N=500,T = 1) #lower temperature X
+        for step in range(Niter):
+            self.X, self.Y, Utot = MoveParticle(self.X, self.Y, Utot, a, b, T, delta)
 
-#sim = SimulateParticles(N=50)#less population
-#sim = SimulateParticles(N=2000)#more population
-sim.run(Niter=1001)
+            if step % 100 == 0:
+                plt.scatter(self.X, self.Y, color='black', s=self.sizes, alpha=0.3)
+                plt.title(f'Iteration {step}')
+                plt.xlim(0, self.L)
+                plt.ylim(0, self.L)
+                plt.show()
 
+sim = SimulateParticles(N=150)
+sim.run(Niter=2500, T=1)

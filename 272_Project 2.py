@@ -20,10 +20,8 @@ def PlotLocation(R = 50, N = 100):
 def Potential(Dx, Dy, a = 1, b = 1, N = 100): 
     r = np.sqrt(Dx**2 + Dy**2)
     
-    #to avoid error from division by zero
-    eps = 1e-10
-    Eye = np.eye(N)
-    r = r + Eye * (1/eps)
+    #to avoid error from division by zero
+    np.fill_diagonal(r, np.inf)
     
     Phi = a/r**12 - b/r**6
     np.fill_diagonal(Phi,0)
@@ -32,8 +30,8 @@ def Potential(Dx, Dy, a = 1, b = 1, N = 100):
 
 #3.call Potential, calculates the distances and the total potential
 def DisToPotential(Xinit, Yinit, a, b, N, Eye, Ones):
-    Xi_tile = np.tile(Xinit, (1,N)) #Xinit from PlotLocation
-    Yi_tile  = np.tile(Yinit, (1,N))
+    Xi_tile = np.tile(Xinit, (N,1)) #Xinit from PlotLocation
+    Yi_tile  = np.tile(Yinit, (N,1))
     
     Dx = Xi_tile - Xi_tile.T
     Dy = Yi_tile - Yi_tile.T
@@ -49,9 +47,6 @@ def MoveParticle(Xinit, Yinit, N = 100, Niter = 1000, a = 1, b = 1, T = 10, delt
     N = len(Xinit)
     Eye = np.eye(N)
     Ones = np.ones((N,))
-    
-    Utot = DisToPotential(Xinit, Yinit, a, b, N, Eye, Ones)
-    #then it generates Utot?
 
     #check step size adjustment constant "delta"
     #r0 = (a / b)**(1/6) 
@@ -59,8 +54,8 @@ def MoveParticle(Xinit, Yinit, N = 100, Niter = 1000, a = 1, b = 1, T = 10, delt
     #print("compare 0.1*r0 to delta: ", 0.1*r0, delta)
     
     for n in range(Niter):
-        dx = delta * np.random.choice([-1, 1],(N,1)) #delta is to adjust step size
-        dy = delta * np.random.choice([-1, 1],(N,1))
+        dx = delta * np.random.choice([-1, 1],(N,)) #delta is to adjust step size
+        dy = delta * np.random.choice([-1, 1],(N,))
         #print("dx, dy", dx, dy)
         Xtri = np.copy(Xinit)
         Ytri = np.copy(Yinit)
@@ -73,23 +68,24 @@ def MoveParticle(Xinit, Yinit, N = 100, Niter = 1000, a = 1, b = 1, T = 10, delt
         Utri = DisToPotential(Xtri, Ytri, a, b, N, Eye, Ones) #new
         dU = Utri - Uold
         
-        rho = np.random.uniform(0,1) #rho should be differnet for each particle for strictly speaking, for detailed balance
-        accept = (dU < 0) | (rho < np.exp(-dU / T))
+        rho = np.random.uniform(0,1, size = dU.shape) #rho should be differnet for each particle for strictly speaking, for detailed balance
+        criteria = np.clip(-dU / T, 0, 700 ) #avoids redundancy since we already check dU<0 and avoids overflow of np.exp
+        accept = (dU < 0) | (rho < np.exp(criteria))
         move_indices = np.flatnonzero(accept)
         
         for i in move_indices:
             Xinit[i] = Xtri[i]
             Yinit[i] = Ytri[i]
-            Utot[i] = Utri[i]
             
         #Plotting
-        if not n%500:
+        if not n%100:
             plt.scatter(Xinit, Yinit, c='gray', alpha=0.5, s=30)
             plt.xlabel('x')
             plt.ylabel('y')
             plt.title(f'after {n} iterations\na = {a}, b = {b}, T = {T}, N = {N}')
             #plt.savefig(f'after {n} iterations, a = {a}, b = {b}, T = {T}, N = {N}.png')
             plt.show()
+            plt.pause(0.1)
 
 #5. runs the simulate
 class SimulateParticles:
@@ -116,4 +112,5 @@ sim = SimulateParticles(N=500,a = 1, b = 1)
 #sim = SimulateParticles(N=50)#less population
 #sim = SimulateParticles(N=2000)#more population
 sim.run(Niter=1001)
+
 

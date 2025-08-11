@@ -125,5 +125,5 @@ class SimulateParticles:
 
 
 # Example run:
-sim = SimulateParticles(N=500,a = 1, b = 1, T = 10, delta = 0.01)
+sim = SimulateParticles(N=200,a = 4, b = 4, T = 1, delta = 0.01)
 sim.run(Niter=10_000)

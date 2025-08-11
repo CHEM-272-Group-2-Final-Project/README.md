@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 
 #1. Initialize current locations of N particles within a square box of side length 2R.
 #   Particles are placed with uniform random distribution in both x and y directions.
-def PlotLocation(R = 15, N = 100):
+def PlotLocation(R = 60, N = 100):
     Xinit = np.random.uniform(-R, R, (N,))
     Yinit = np.random.uniform(-R, R, (N,))
     return Xinit, Yinit

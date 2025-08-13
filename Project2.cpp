@@ -94,7 +94,6 @@ void metropolis_random_scan(
         if (dU < 0.0 || rng.uni01(rng.gen) < std::exp(-dU / T)) {
             x[i] = xt[i];
             y[i] = yt[i];
-            U[i] = U_new_i;
         }
     }
 }

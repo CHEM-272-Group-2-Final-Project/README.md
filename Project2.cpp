@@ -1,19 +1,11 @@
 #include <algorithm>
 #include <cmath>
-#include <cstdio>
+#include <fstream>
 #include <iostream>
 #include <random>
 #include <string>
 #include <utility>
 #include <vector>
-
-#ifdef _WIN32
-#define POPEN  _popen
-#define PCLOSE _pclose
-#else
-#define POPEN  popen
-#define PCLOSE pclose
-#endif
 
 struct RNG {
     std::mt19937 gen;
@@ -24,10 +16,6 @@ struct RNG {
         return d(gen);
     }
     double choice_pm() { return uni01(gen) < 0.5 ? -1.0 : 1.0; }
-    int randint(int low, int high) {
-        std::uniform_int_distribution<int> d(low, high - 1);
-        return d(gen);
-    }
 };
 
 std::pair<std::vector<double>, std::vector<double>>
@@ -50,7 +38,7 @@ std::vector<std::vector<double>> lennard_jones_matrix(
     const std::vector<std::vector<double>>& dx,
     const std::vector<std::vector<double>>& dy,
     double a, double b) {
-    int n = dx.size();
+    int n = static_cast<int>(dx.size());
     std::vector<std::vector<double>> phi(n, std::vector<double>(n, 0.0));
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -66,7 +54,7 @@ std::vector<double> total_potential_per_particle(
     const std::vector<double>& x,
     const std::vector<double>& y,
     double a, double b) {
-    int n = x.size();
+    int n = static_cast<int>(x.size());
     std::vector<std::vector<double>> dx(n, std::vector<double>(n));
     std::vector<std::vector<double>> dy(n, std::vector<double>(n));
     for (int i = 0; i < n; i++) {
@@ -90,7 +78,7 @@ void metropolis_random_scan(
     std::vector<double>& y,
     std::vector<double>& U,
     double a, double b, double T, double delta, double box_half, RNG& rng) {
-    int n = x.size();
+    int n = static_cast<int>(x.size());
     std::vector<int> idx(n);
     for (int i = 0; i < n; i++) idx[i] = i;
     std::shuffle(idx.begin(), idx.end(), rng.gen);
@@ -116,7 +104,7 @@ void metropolis_all_at_once(
     std::vector<double>& y,
     std::vector<double>& U,
     double a, double b, double T, double delta, double box_half, RNG& rng) {
-    int n = x.size();
+    int n = static_cast<int>(x.size());
     std::vector<double> xt(n), yt(n);
     for (int i = 0; i < n; i++) {
         xt[i] = std::max(-box_half, std::min(box_half, x[i] + delta * rng.choice_pm()));
@@ -133,25 +121,17 @@ void metropolis_all_at_once(
     }
 }
 
-void plot_particles(const std::vector<double>& x,
-                    const std::vector<double>& y,
-                    const std::vector<double>& mass,
-                    double box_half,
-                    int step, double T, double a, double b) {
-    FILE* gp = POPEN("gnuplot -persist", "w");
-    if (!gp) return;
-    fprintf(gp, "set title 'Iteration %d  T=%.3f  a=%.3f  b=%.3f'\n", step, T, a, b);
-    fprintf(gp, "set xrange [%f:%f]\n", -box_half, box_half);
-    fprintf(gp, "set yrange [%f:%f]\n", -box_half, box_half);
-    fprintf(gp, "set size square\n");
-    fprintf(gp, "unset key\n");
-    fprintf(gp, "plot '-' with points pt 7 ps variable\n");
+void save_csv(const std::string& filename,
+              const std::vector<double>& x,
+              const std::vector<double>& y,
+              const std::vector<double>& mass,
+              int step, double T, double a, double b) {
+    std::ofstream file(filename);
+    file << "step,x,y,mass,T,a,b\n";
     for (size_t i = 0; i < x.size(); i++) {
-        double size = 10.0 * mass[i] * 0.1;
-        fprintf(gp, "%f %f %f\n", x[i], y[i], size);
+        file << step << "," << x[i] << "," << y[i] << "," << mass[i]
+             << "," << T << "," << a << "," << b << "\n";
     }
-    fprintf(gp, "e\n");
-    PCLOSE(gp);
 }
 
 struct Simulator {
@@ -174,14 +154,16 @@ struct Simulator {
                 metropolis_all_at_once(x, y, U, a, b, T, delta, box_half, rng);
             else
                 metropolis_random_scan(x, y, U, a, b, T, delta, box_half, rng);
-            if (step % plot_every == 0)
-                plot_particles(x, y, mass, box_half, step, T, a, b);
+            if (step % plot_every == 0) {
+                std::string fname = "particles_step_" + std::to_string(step) + ".csv";
+                save_csv(fname, x, y, mass, step, T, a, b);
+            }
         }
     }
 };
 
 int main() {
     Simulator sim(200, 100.0, 42);
-    sim.run(2000, 1.0, 1.0, 25.0, 1.0, 100.0, 100, "random_scan");
+    sim.run(4000, 1.0, 1.0, 25.0, 1.0, 100.0, 500, "random_scan");
     return 0;
 }

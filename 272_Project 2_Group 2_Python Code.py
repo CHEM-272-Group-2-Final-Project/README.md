@@ -3,8 +3,8 @@
 
 CHEM 272_Project 2
 
-Particle Movement Simulation
-in Lennard-Jones Potential
+Particle Movement Simulation 
+in Lennard-Jones Potential  
 using Metropolis Monte-Carlo Algorithm
 -Python Code
 
@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 #1. Initialize current locations of N particles within a square box of side length 2R.
 #   Particles are placed with uniform random distribution in both x and y directions.
 #   Positions are sampled in [-R, R] x [-R, R].
-def PlotLocation(R = 15, N = 200):
+def PlotLocation(R = 100, N = 200):
     Xinit = np.random.uniform(-R, R, (N,))
     Yinit = np.random.uniform(-R, R, (N,))
     return Xinit, Yinit
@@ -111,7 +111,7 @@ def MoveParticle(Xinit, Yinit, Niter = 10_000, a = 4, b = 4, T = 1, sigma = 0.01
 
 # 5) Simple wrapper class to bundle parameters and run the simulation.
 class SimulateParticles:
-    def __init__(self, N=200, R=15, a=4, b=4, T=1, sigma=0.01):
+    def __init__(self, N=200, R=60, a=4, b=4, T=1, sigma=0.01):
         # Simulation parameters:
         # N     = number of particles
         # R     = half-width of initial square placement range [-R, R]
@@ -134,29 +134,28 @@ class SimulateParticles:
 
 
 # Example run with default setting:
-sim = SimulateParticles(N=200,a = 4, b = 4, T = 1, sigma = 0.01)
+sim = SimulateParticles(N=100,a = 4, b = 4, T = 1, sigma = 0.05)
 sim.run(Niter=10_001)
 
 # Example run with higher a:
-sim = SimulateParticles(N=200,a = 20, b = 4, T = 1, sigma = 0.01)
+sim = SimulateParticles(N=100,a = 20, b = 4, T = 1, sigma = 0.05)
 sim.run(Niter=10_001)
 
 # Example run with higher b:
-sim = SimulateParticles(N=200,a = 4, b = 20, T = 1, sigma = 0.01)
+sim = SimulateParticles(N=100,a = 4, b = 20, T = 1, sigma = 0.05)
 sim.run(Niter=10_001)
 
 # Example run with higher T:
-sim = SimulateParticles(N=200,a = 4, b = 4, T = 1000, sigma = 0.01)
-sim.run(Niter=10_001)
+sim = SimulateParticles(N=100,a = 4, b = 4, T = 1000, sigma = 0.05)
 
-# Example run with intermediate T:
-sim = SimulateParticles(N=200,a = 4, b = 4, T = 100, sigma = 0.01)
+# Example run with low T:
+sim = SimulateParticles(N=100,a = 4, b = 4, T = 0.01, sigma = 0.05)
 sim.run(Niter=10_001)
 
 # Example run with lower N:
-sim = SimulateParticles(N=20,a = 4, b = 4, T = 1, sigma = 0.01)
+sim = SimulateParticles(N=20,a = 4, b = 4, T = 1, sigma = 0.05)
 sim.run(Niter=10_001)
 
 # Example run with higher N:
-sim = SimulateParticles(N=2_000,a = 4, b = 4, T = 1, sigma = 0.01)
+sim = SimulateParticles(N=2_000,a = 4, b = 4, T = 1, sigma = 0.05)
 sim.run(Niter=201)

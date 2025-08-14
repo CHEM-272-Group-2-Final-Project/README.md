@@ -1,3 +1,20 @@
+/*
+
+CHEM 272_Project 2
+
+Lennard-Jones Potential Simulation 
+using Metropolis Monte-Carlo Method
+
+-Group 2-
+David Houshangi
+Yash Maheshwaran
+Yejin Yang
+Christian Fernandez
+Seungho Yoo
+
+*/
+
+
 #include <algorithm>
 #include <cmath>
 #include <fstream>

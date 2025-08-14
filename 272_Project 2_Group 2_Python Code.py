@@ -1,7 +1,7 @@
 
 """
 
-272_Project 2
+CHEM 272_Project 2
 
 Lennard-Jones Potential Simulation 
 using Metropolis Monte-Carlo Method

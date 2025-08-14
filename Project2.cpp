@@ -2,9 +2,10 @@
 
 CHEM 272_Project 2
 
-Lennard-Jones Potential Simulation 
-using Metropolis Monte-Carlo Method
-C++ Code
+Particle Movement Simulation
+in Lennard-Jones Potential
+using Metropolis Monte-Carlo Algorithm
+-C++ Code
 
 -Group 2-
 David Houshangi

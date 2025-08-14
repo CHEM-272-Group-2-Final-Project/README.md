@@ -111,7 +111,7 @@ def MoveParticle(Xinit, Yinit, Niter = 10_000, a = 4, b = 4, T = 1, sigma = 0.01
 
 # 5) Simple wrapper class to bundle parameters and run the simulation.
 class SimulateParticles:
-    def __init__(self, N=200, R=60, a=4, b=4, T=1, sigma=0.01):
+    def __init__(self, N=200, R=100, a=4, b=4, T=1, sigma=0.01):
         # Simulation parameters:
         # N     = number of particles
         # R     = half-width of initial square placement range [-R, R]

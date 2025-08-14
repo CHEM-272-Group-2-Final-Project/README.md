@@ -102,10 +102,12 @@ def MoveParticle(Xinit, Yinit, Niter = 10_000, a = 4, b = 4, T = 1, sigma = 0.01
             
         # 4e) Visualization: plot every 100 iterations
         if not n%100:
+            plt.figure(figsize=(5, 4)) 
             plt.scatter(Xinit, Yinit, c='gray', alpha=0.5, s=30)
-            plt.xlabel('x')
-            plt.ylabel('y')
-            plt.title(f'after {n} iterations\na = {a}, b = {b}, T = {T}, N = {N}')
+            plt.xlabel('x', fontsize=15)
+            plt.ylabel('y', fontsize=15)
+            plt.tick_params(axis='both', labelsize=15)
+            plt.title(f'after {n} iterations\na = {a}, b = {b}, T = {T}, N = {N}', fontsize=20)
             plt.show()
 
 
